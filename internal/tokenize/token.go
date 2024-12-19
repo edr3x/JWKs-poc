@@ -62,9 +62,12 @@ func init() {
 	for _, envVar := range keyEnvVars {
 		privateKey := loadPrivateKeyFromEnv(envVar)
 		publicKey := &privateKey.PublicKey
+
 		kid := generateDeterministicKid(publicKey)
+
+		// map keys according to kid
 		signMap[kid] = privateKey
-		verifyMap[kid] = &privateKey.PublicKey
+		verifyMap[kid] = publicKey
 	}
 }
 
