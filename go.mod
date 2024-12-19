@@ -3,6 +3,7 @@ module github.com/edr3x/go-jwks-rsa
 go 1.23.4
 
 require (
+	github.com/MicahParks/jwkset v0.5.19
 	github.com/MicahParks/keyfunc/v3 v3.3.5
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
@@ -11,7 +12,6 @@ require (
 )
 
 require (
-	github.com/MicahParks/jwkset v0.5.19 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

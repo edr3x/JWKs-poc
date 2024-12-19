@@ -6,22 +6,11 @@ import (
 	"encoding/json"
 	"log/slog"
 	"math/big"
+
+	"github.com/MicahParks/jwkset"
 )
 
-type JWKs struct {
-	Keys []JWK `json:"keys"`
-}
-
-type JWK struct {
-	Kty string `json:"kty"`
-	Alg string `json:"alg"`
-	Kid string `json:"kid,omitempty"`
-	N   string `json:"n"`
-	E   string `json:"e"`
-	Use string `json:"use,omitempty"`
-}
-
-func GetJwkKeys() (res JWKs, err error) {
+func GetJwkKeys() (res jwkset.JWKSMarshal, err error) {
 	cacheKey := "jwk_cache"
 
 	response, ok := keyStore.Get(cacheKey)
@@ -32,11 +21,7 @@ func GetJwkKeys() (res JWKs, err error) {
 	}
 
 	for key, v := range verifyMap {
-		jwk, err := encodeToJWK(v, key)
-		if err != nil {
-			slog.Error("JWK Encoding Error", "error: ", err.Error())
-			continue
-		}
+		jwk := encodeToJWK(v, key)
 		res.Keys = append(res.Keys, jwk)
 	}
 
@@ -50,18 +35,15 @@ func GetJwkKeys() (res JWKs, err error) {
 	return res, nil
 }
 
-func encodeToJWK(rsaPubKey *rsa.PublicKey, kid string) (JWK, error) {
+func encodeToJWK(rsaPubKey *rsa.PublicKey, kid string) jwkset.JWKMarshal {
 	n := base64.RawURLEncoding.EncodeToString(rsaPubKey.N.Bytes())
 	e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(rsaPubKey.E)).Bytes())
-
-	jwk := JWK{
-		Kty: "RSA",
-		Alg: "RS256",
-		Kid: kid,
+	return jwkset.JWKMarshal{
+		KTY: jwkset.KtyRSA,
+		ALG: jwkset.AlgRS256,
+		KID: kid,
 		N:   n,
 		E:   e,
-		Use: "sig",
+		USE: jwkset.UseSig,
 	}
-
-	return jwk, nil
 }
