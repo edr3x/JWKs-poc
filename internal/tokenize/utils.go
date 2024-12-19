@@ -2,11 +2,11 @@ package tokenize
 
 import (
 	"crypto/rsa"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"log"
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -29,13 +29,8 @@ func loadPrivateKeyFromEnv(envVar string) *rsa.PrivateKey {
 	return privateKey
 }
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func randomString(length int) string {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-	result := make([]byte, length)
-	for i := range result {
-		result[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(result)
+func generateDeterministicKid(publicKey *rsa.PublicKey) string {
+	pubKeyBytes := append(publicKey.N.Bytes(), byte(publicKey.E))
+	hash := sha256.Sum256(pubKeyBytes)
+	return hex.EncodeToString(hash[:12])
 }

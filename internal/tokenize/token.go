@@ -60,10 +60,11 @@ func init() {
 	}
 
 	for _, envVar := range keyEnvVars {
-		key := loadPrivateKeyFromEnv(envVar)
-		randomKey := randomString(12) // this generates randomkey on startup, on production store public keys and id on db
-		signMap[randomKey] = key
-		verifyMap[randomKey] = &key.PublicKey
+		privateKey := loadPrivateKeyFromEnv(envVar)
+		publicKey := &privateKey.PublicKey
+		kid := generateDeterministicKid(publicKey)
+		signMap[kid] = privateKey
+		verifyMap[kid] = &privateKey.PublicKey
 	}
 }
 
